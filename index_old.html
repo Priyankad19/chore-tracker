@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neel & Kavynsh Chore Tracker</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // Lucide React Icons (inline)
+        const Calendar = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        );
+        
+        const DollarSign = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+        );
+        
+        const Lock = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+        );
+        
+        const Unlock = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+            </svg>
+        );
+        
+        const User = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        );
+        
+        const Plus = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        );
+        
+        const Trash2 = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+        );
+        
+        const Edit2 = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+            </svg>
+        );
+        
+        const Check = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        );
+        
+        const X = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        );
+        
+        const Save = ({size = 24, className = ""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+        );
+
+        const ChoreTrackerApp = () => {
+            const ADMIN_PASSWORD = 'parent123';
+            const NEEL_PASSWORD = 'neel123';
+            const KAVYNSH_PASSWORD = 'kavynsh123';
+            
+            const initialTasks = [
+                { id: 1, name: 'Make the bed', category: 'daily' },
+                { id: 2, name: 'Keep room tidy', category: 'daily' },
+                { id: 3, name: 'Pack school bag a day before', category: 'daily' },
+                { id: 4, name: 'Keep shoes/socks/sweater/school bag in place after school', category: 'daily' },
+                { id: 5, name: 'Keep clothes in cupboard', category: 'daily' },
+                { id: 6, name: 'Homework between 4-5 PM', category: 'daily' },
+                { id: 7, name: '30 mins exercise', category: 'daily' },
+                { id: 8, name: 'Help with laundry/Take trash out', category: 'daily' },
+                { id: 9, name: 'Help in kitchen', category: 'daily' },
+                { id: 10, name: 'Eat eggs / breakfast', category: 'eating' },
+                { id: 11, name: 'Eat veggies / fruits', category: 'eating' },
+                { id: 12, name: 'Finish water bottle', category: 'eating' },
+                { id: 13, name: 'Avoid junk food', category: 'eating' },
+                { id: 14, name: 'Eat without fuss / try new food', category: 'eating' },
+                { id: 15, name: 'Only 2 hrs on iPad', category: 'daily' },
+                { id: 16, name: 'Cleaning some part of house', category: 'weekly' },
+                { id: 17, name: 'Creative family time idea', category: 'weekly' }
+            ];
+
+            const [currentUser, setCurrentUser] = useState(null);
+            const [passwordInput, setPasswordInput] = useState('');
+            const [selectedLoginUser, setSelectedLoginUser] = useState(null);
+            const [tasks, setTasks] = useState(initialTasks);
+            const [completions, setCompletions] = useState({});
+            const [wallets, setWallets] = useState({ Neel: 0, Kavynsh: 0 });
+            const [currentWeek, setCurrentWeek] = useState(getWeekKey());
+            const [weeklyEarnings, setWeeklyEarnings] = useState({ Neel: 0, Kavynsh: 0 });
+            const [isAddingTask, setIsAddingTask] = useState(false);
+            const [editingTask, setEditingTask] = useState(null);
+            const [newTaskName, setNewTaskName] = useState('');
+            const [newTaskCategory, setNewTaskCategory] = useState('daily');
+            const [withdrawAmount, setWithdrawAmount] = useState({ Neel: '', Kavynsh: '' });
+
+            const kids = ['Neel', 'Kavynsh'];
+            const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+            const pointValue = 0.25;
+
+            useEffect(() => {
+                const loadData = async () => {
+                    try {
+                        const tasksData = await window.storage.get('chore_tasks');
+                        const completionsData = await window.storage.get('chore_completions');
+                        const walletsData = await window.storage.get('chore_wallets');
+                        const earningsData = await window.storage.get('chore_earnings');
+                        
+                        if (tasksData) setTasks(JSON.parse(tasksData.value));
+                        if (completionsData) setCompletions(JSON.parse(completionsData.value));
+                        if (walletsData) setWallets(JSON.parse(walletsData.value));
+                        if (earningsData) setWeeklyEarnings(JSON.parse(earningsData.value));
+                    } catch (error) {
+                        console.log('No saved data found, using defaults');
+                    }
+                };
+                loadData();
+            }, []);
+
+            const saveData = async () => {
+                try {
+                    await window.storage.set('chore_tasks', JSON.stringify(tasks));
+                    await window.storage.set('chore_completions', JSON.stringify(completions));
+                    await window.storage.set('chore_wallets', JSON.stringify(wallets));
+                    await window.storage.set('chore_earnings', JSON.stringify(weeklyEarnings));
+                } catch (error) {
+                    console.error('Error saving data:', error);
+                }
+            };
+
+            useEffect(() => {
+                saveData();
+            }, [tasks, completions, wallets, weeklyEarnings]);
+
+            function getWeekKey() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const week = Math.ceil((now - new Date(year, 0, 1)) / 604800000);
+                return `${year}-W${week}`;
+            }
+
+            const handleLogin = () => {
+                if (selectedLoginUser === 'admin' && passwordInput === ADMIN_PASSWORD) {
+                    setCurrentUser('admin');
+                    setPasswordInput('');
+                    setSelectedLoginUser(null);
+                } else if (selectedLoginUser === 'Neel' && passwordInput === NEEL_PASSWORD) {
+                    setCurrentUser('Neel');
+                    setPasswordInput('');
+                    setSelectedLoginUser(null);
+                } else if (selectedLoginUser === 'Kavynsh' && passwordInput === KAVYNSH_PASSWORD) {
+                    setCurrentUser('Kavynsh');
+                    setPasswordInput('');
+                    setSelectedLoginUser(null);
+                } else {
+                    alert('Incorrect password!');
+                }
+            };
+
+            const handleLogout = () => {
+                setCurrentUser(null);
+                setPasswordInput('');
+                setSelectedLoginUser(null);
+            };
+
+            const toggleCompletion = (kid, day, taskId) => {
+                const key = `${currentWeek}-${kid}-${day}-${taskId}`;
+                setCompletions(prev => ({
+                    ...prev,
+                    [key]: !prev[key]
+                }));
+            };
+
+            const getCompletionCount = (kid) => {
+                let count = 0;
+                days.forEach(day => {
+                    tasks.forEach(task => {
+                        const key = `${currentWeek}-${kid}-${day}-${task.id}`;
+                        if (completions[key]) count++;
+                    });
+                });
+                return count;
+            };
+
+            const calculateWeeklyEarnings = () => {
+                const earnings = {};
+                kids.forEach(kid => {
+                    earnings[kid] = getCompletionCount(kid) * pointValue;
+                });
+                setWeeklyEarnings(earnings);
+            };
+
+            const creditToWallet = () => {
+                const newWallets = { ...wallets };
+                kids.forEach(kid => {
+                    newWallets[kid] += weeklyEarnings[kid];
+                });
+                setWallets(newWallets);
+                setWeeklyEarnings({ Neel: 0, Kavynsh: 0 });
+                setCompletions({});
+                setCurrentWeek(getWeekKey());
+            };
+
+            const addTask = () => {
+                if (newTaskName.trim()) {
+                    const newTask = {
+                        id: Date.now(),
+                        name: newTaskName.trim(),
+                        category: newTaskCategory
+                    };
+                    setTasks([...tasks, newTask]);
+                    setNewTaskName('');
+                    setIsAddingTask(false);
+                }
+            };
+
+            const updateTask = () => {
+                setTasks(tasks.map(t => 
+                    t.id === editingTask.id 
+                        ? { ...t, name: newTaskName, category: newTaskCategory }
+                        : t
+                ));
+                setEditingTask(null);
+                setNewTaskName('');
+            };
+
+            const deleteTask = (taskId) => {
+                if (confirm('Are you sure you want to delete this task?')) {
+                    setTasks(tasks.filter(t => t.id !== taskId));
+                }
+            };
+
+            const handleWithdraw = (kid) => {
+                const amount = parseFloat(withdrawAmount[kid]);
+                if (amount > 0 && amount <= wallets[kid]) {
+                    setWallets(prev => ({ ...prev, [kid]: prev[kid] - amount }));
+                    setWithdrawAmount(prev => ({ ...prev, [kid]: '' }));
+                    alert(`$${amount.toFixed(2)} withdrawn from ${kid}'s wallet!`);
+                } else {
+                    alert('Invalid amount!');
+                }
+            };
+
+            if (!currentUser) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
+                            <h1 className="text-4xl font-bold text-center text-purple-600 mb-2">🌟 Chore Tracker 🌟</h1>
+                            <p className="text-center text-gray-600 mb-8">Who's logging in?</p>
+                            
+                            {!selectedLoginUser ? (
+                                <div className="space-y-4">
+                                    <button onClick={() => setSelectedLoginUser('Neel')} className="w-full py-4 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-xl font-bold text-xl hover:from-blue-500 hover:to-blue-600 transition flex items-center justify-center gap-3 shadow-lg">
+                                        <User size={28} />
+                                        Neel
+                                    </button>
+                                    <button onClick={() => setSelectedLoginUser('Kavynsh')} className="w-full py-4 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-xl font-bold text-xl hover:from-green-500 hover:to-green-600 transition flex items-center justify-center gap-3 shadow-lg">
+                                        <User size={28} />
+                                        Kavynsh
+                                    </button>
+                                    <button onClick={() => setSelectedLoginUser('admin')} className="w-full py-4 bg-gradient-to-r from-purple-400 to-purple-500 text-white rounded-xl font-bold text-xl hover:from-purple-500 hover:to-purple-600 transition flex items-center justify-center gap-3 shadow-lg">
+                                        <Lock size={28} />
+                                        Parent (Admin)
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="text-center mb-4">
+                                        <p className="text-lg font-semibold text-gray-700">Welcome, {selectedLoginUser === 'admin' ? 'Parent' : selectedLoginUser}!</p>
+                                        <p className="text-sm text-gray-500">Enter your password</p>
+                                    </div>
+                                    <input type="password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleLogin()} placeholder="Password" autoFocus className="w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg" />
+                                    <div className="flex gap-3">
+                                        <button onClick={handleLogin} className="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition">Login</button>
+                                        <button onClick={() => { setSelectedLoginUser(null); setPasswordInput(''); }} className="flex-1 py-3 bg-gray-400 text-white rounded-xl font-bold hover:bg-gray-500 transition">Back</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (currentUser !== 'admin') {
+                const kidName = currentUser;
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+                        <div className="max-w-4xl mx-auto">
+                            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h1 className="text-3xl font-bold text-purple-600">Hi {kidName}! 👋</h1>
+                                        <p className="text-gray-600 mt-1">Track your weekly tasks</p>
+                                    </div>
+                                    <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-red-400 text-white rounded-lg hover:bg-red-500 transition">
+                                        <Unlock size={20} /> Logout
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className={`bg-gradient-to-r ${kidName === 'Neel' ? 'from-blue-400 to-blue-500' : 'from-green-400 to-green-500'} rounded-2xl shadow-lg p-6 text-white mb-6`}>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <DollarSign size={28} />
+                                    <h3 className="text-2xl font-bold">Your Wallet</h3>
+                                </div>
+                                <p className="text-5xl font-bold">${wallets[kidName].toFixed(2)}</p>
+                            </div>
+
+                            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Calendar className="text-purple-600" size={24} />
+                                    <span className="text-lg font-semibold">Week: {currentWeek}</span>
+                                </div>
+                                <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
+                                    <p className="font-semibold text-gray-700 mb-1">Your Progress This Week:</p>
+                                    <p className="text-3xl font-bold text-yellow-600">{getCompletionCount(kidName)} tasks completed</p>
+                                    <p className="text-lg text-gray-600 mt-2">You've earned ${(getCompletionCount(kidName) * pointValue).toFixed(2)} so far!</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-2xl shadow-lg p-6 overflow-x-auto">
+                                <h3 className="text-xl font-bold text-gray-800 mb-4">Your Tasks</h3>
+                                <table className="w-full">
+                                    <thead>
+                                        <tr>
+                                            <th className="text-left p-3 font-bold text-gray-700 bg-gray-50 rounded-tl-lg">Task</th>
+                                            {days.map(day => (
+                                                <th key={day} className="text-center p-3 font-bold text-purple-600 bg-gray-50">{day}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {tasks.map((task, idx) => (
+                                            <tr key={task.id} className={`border-t border-gray-200 ${idx % 2 === 0 ? 'bg-gray-50' : ''}`}>
+                                                <td className="p-3 font-medium text-sm">{task.name}</td>
+                                                {days.map(day => {
+                                                    const key = `${currentWeek}-${kidName}-${day}-${task.id}`;
+                                                    const isChecked = completions[key];
+                                                    return (
+                                                        <td key={day} className="text-center p-2">
+                                                            <button onClick={() => toggleCompletion(kidName, day, task.id)} className={`w-10 h-10 rounded-lg transition ${isChecked ? kidName === 'Neel' ? 'bg-blue-500 text-white shadow-lg' : 'bg-green-500 text-white shadow-lg' : 'bg-gray-200 hover:bg-gray-300'}`}>
+                                                                {isChecked && <span className="text-2xl">✓</span>}
+                                                            </button>
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="mt-6 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl shadow-lg p-6 text-center">
+                                <p className="text-2xl font-bold text-gray-800">
+                                    {getCompletionCount(kidName) === 0 
+                                        ? "Let's get started! Complete your tasks to earn money! 💪"
+                                        : getCompletionCount(kidName) < tasks.length * days.length / 2
+                                        ? "Great start! Keep going! 🌟"
+                                        : "Awesome job! You're doing amazing! 🎉"}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <h1 className="text-3xl font-bold text-purple-600">🌟 Chore Tracker - Admin View 🌟</h1>
+                                    <p className="text-gray-600 mt-1">Neel & Kavynsh's Weekly Tasks</p>
+                                </div>
+                                <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-red-400 text-white rounded-lg hover:bg-red-500 transition">
+                                    <Unlock size={20} /> Logout
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                            {kids.map(kid => (
+                                <div key={kid} className="bg-gradient-to-r from-green-400 to-blue-400 rounded-2xl shadow-lg p-6 text-white">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <DollarSign size={24} />
+                                        <h3 className="text-xl font-bold">{kid}'s Wallet</h3>
+                                    </div>
+                                    <p className="text-4xl font-bold">${wallets[kid].toFixed(2)}</p>
+                                    <div className="mt-4 flex gap-2">
+                                        <input type="number" step="0.25" value={withdrawAmount[kid]} onChange={(e) => setWithdrawAmount(prev => ({ ...prev, [kid]: e.target.value }))} placeholder="Amount" className="flex-1 px-3 py-2 rounded-lg text-gray-800 focus:outline-none" />
+                                        <button onClick={() => handleWithdraw(kid)} className="px-4 py-2 bg-white text-green-600 rounded-lg hover:bg-gray-100 font-semibold">Withdraw</button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="text-purple-600" size={24} />
+                                    <span className="text-lg font-semibold">Week: {currentWeek}</span>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button onClick={calculateWeeklyEarnings} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Calculate Week</button>
+                                    {(weeklyEarnings.Neel > 0 || weeklyEarnings.Kavynsh > 0) && (
+                                        <button onClick={creditToWallet} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Credit & Start New Week</button>
+                                    )}
+                                </div>
+                            </div>
+                            {(weeklyEarnings.Neel > 0 || weeklyEarnings.Kavynsh > 0) && (
+                                <div className="mt-4 grid grid-cols-2 gap-4">
+                                    {kids.map(kid => (
+                                        <div key={kid} className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
+                                            <p className="font-semibold text-gray-700">{kid} earned this week:</p>
+                                            <p className="text-2xl font-bold text-yellow-600">{getCompletionCount(kid)} tasks × ${pointValue} = ${weeklyEarnings[kid].toFixed(2)}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-xl font-bold text-gray-800">Manage Tasks</h3>
+                                <button onClick={() => setIsAddingTask(true)} className="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">
+                                    <Plus size={20} /> Add Task
+                                </button>
+                            </div>
+
+                            {isAddingTask && (
+                                <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                                    <input type="text" value={newTaskName} onChange={(e) => setNewTaskName(e.target.value)} placeholder="Task name" className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                                    <div className="flex gap-2">
+                                        <select value={newTaskCategory} onChange={(e) => setNewTaskCategory(e.target.value)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                            <option value="daily">Daily</option>
+                                            <option value="eating">Eating</option>
+                                            <option value="weekly">Weekly</option>
+                                        </select>
+                                        <button onClick={addTask} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                                            <Check size={20} />
+                                        </button>
+                                        <button onClick={() => setIsAddingTask(false)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                                            <X size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                {tasks.map(task => (
+                                    <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        {editingTask?.id === task.id ? (
+                                            <div className="flex-1 flex gap-2">
+                                                <input type="text" value={newTaskName} onChange={(e) => setNewTaskName(e.target.value)} className="flex-1 px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                                                <select value={newTaskCategory} onChange={(e) => setNewTaskCategory(e.target.value)} className="px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                                    <option value="daily">Daily</option>
+                                                    <option value="eating">Eating</option>
+                                                    <option value="weekly">Weekly</option>
+                                                </select>
+                                                <button onClick={updateTask} className="p-2 bg-green-500 text-white rounded hover:bg-green-600">
+                                                    <Save size={18} />
+                                                </button>
+                                                <button onClick={() => setEditingTask(null)} className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                                                    <X size={18} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <span className="flex-1">{task.name} <span className="text-xs text-gray-500">({task.category})</span></span>
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => { setEditingTask(task); setNewTaskName(task.name); setNewTaskCategory(task.category); }} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                                                        <Edit2 size={18} />
+                                                    </button>
+                                                    <button onClick={() => deleteTask(task.id)} className="p-2 bg-red-500 text-white rounded hover:bg-red-600">
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl shadow-lg p-6 overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr>
+                                        <th className="text-left p-2 font-bold text-gray-700 sticky left-0 bg-white">Tasks</th>
+                                        {days.map(day => (
+                                            <th key={day} colSpan={2} className="text-center p-2 font-bold text-purple-600 border-l border-gray-200">{day}</th>
+                                        ))}
+                                    </tr>
+                                    <tr>
+                                        <th className="sticky left-0 bg-white"></th>
+                                        {days.map(day => (
+                                            <React.Fragment key={day}>
+                                                <th className="text-center text-xs p-1 text-blue-600 border-l border-gray-200">N</th>
+                                                <th className="text-center text-xs p-1 text-green-600">K</th>
+                                            </React.Fragment>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {tasks.map(task => (
+                                        <tr key={task.id} className="border-t border-gray-200 hover:bg-purple-50">
+                                            <td className="p-2 font-medium text-sm sticky left-0 bg-white">{task.name}</td>
+                                            {days.map(day => (
+                                                <React.Fragment key={day}>
+                                                    {kids.map(kid => {
+                                                        const key = `${currentWeek}-${kid}-${day}-${task.id}`;
+                                                        const isChecked = completions[key];
+                                                        return (
+                                                            <td key={kid} className="text-center p-1">
+                                                                <button onClick={() => toggleCompletion(kid, day, task.id)} className={`w-8 h-8 rounded-lg transition ${isChecked ? kid === 'Neel' ? 'bg-blue-500 text-white' : 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>
+                                                                    {isChecked && '✓'}
+                                                                </button>
+                                                            </td>
+                                                        );
+                                                    })}
+                                                </React.Fragment>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-2 gap-4">
+                            {kids.map(kid => (
+                                <div key={kid} className="bg-white rounded-2xl shadow-lg p-6">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">{kid}'s Progress</h3>
+                                    <p className="text-3xl font-bold text-purple-600">{getCompletionCount(kid)} tasks</p>
+                                    <p className="text-gray-600">Worth ${(getCompletionCount(kid) * pointValue).toFixed(2)}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<ChoreTrackerApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
